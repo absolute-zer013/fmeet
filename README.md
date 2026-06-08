@@ -63,6 +63,17 @@ tool/run-release.sh software   # software GL + XWayland (PIXY_SOFTWARE=1), crash
 > `PIXY_SOFTWARE=1` (or run `tool/run-release.sh software`) to fall back to the
 > llvmpipe software rasterizer plus XWayland, which is crash-safe.
 
+To launch it from the desktop app menu instead of a terminal, install a per-user
+shortcut (it points at the release bundle in this checkout and ships a generated
+icon):
+
+```bash
+packaging/install-desktop.sh              # install / refresh
+packaging/install-desktop.sh --uninstall  # remove
+```
+
+Then search for *PixyControl* in your app menu. Re-run it if you move the project.
+
 For development, use `fvm flutter run -d linux`. Plain `flutter` works in place of
 `fvm flutter`.
 
