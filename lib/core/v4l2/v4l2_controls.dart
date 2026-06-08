@@ -117,15 +117,16 @@ class V4l2Controls {
   /// Rejects invalid names and clamps to the enumerated min/max when known.
   Future<bool> set(String name, int value) async {
     if (!_validName.hasMatch(name)) return false;
+    // Only set controls we actually enumerated — rejects names that never came
+    // from the device's own control list (defence in depth around the arg).
     final ctrl = _controls[name];
+    if (ctrl == null) return false;
     var v = value;
-    if (ctrl != null) {
-      if (ctrl.min != null && v < ctrl.min!) v = ctrl.min!;
-      if (ctrl.max != null && v > ctrl.max!) v = ctrl.max!;
-    }
+    if (ctrl.min != null && v < ctrl.min!) v = ctrl.min!;
+    if (ctrl.max != null && v > ctrl.max!) v = ctrl.max!;
     final out = await _run(['--set-ctrl=$name=$v']);
     final ok = out != null;
-    if (ok && ctrl != null) ctrl.value = v;
+    if (ok) ctrl.value = v;
     return ok;
   }
 

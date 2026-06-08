@@ -111,7 +111,7 @@ class PreviewController {
     if (_sweptOrphans) return;
     _sweptOrphans = true;
     try {
-      await Process.run('pkill', ['-f', _marker]);
+      await Process.run('/usr/bin/pkill', ['-f', _marker]);
     } catch (_) {}
   }
 
@@ -124,10 +124,19 @@ class PreviewController {
     if (_videoNode != null) await _spawn();
   }
 
+  /// Accept only canonical V4L2 nodes — guards against a discovered name that
+  /// starts with `-` (ffmpeg/mpv could read it as an option) or anything odd.
+  static final RegExp _validNode = RegExp(r'^/dev/video\d+$');
+
   /// (Re)launch the subprocess for the current mode.
   Future<void> _spawn() async {
     final node = _videoNode;
     if (node == null) return;
+    if (!_validNode.hasMatch(node)) {
+      lastError = 'refusing unexpected video node: $node';
+      _setState(PreviewState.error);
+      return;
+    }
     await _killProc();
     _setState(PreviewState.opening);
     if (_inApp) {

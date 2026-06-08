@@ -14,8 +14,12 @@ class PreviewView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = context.watch<DeviceController>();
+    // `preview` is a stable final field — read it, don't watch. Select only
+    // `previewOn` so the pane doesn't rebuild on every motor/poll notification
+    // (the per-frame repaint is isolated inside _LiveView's ValueListenable).
+    final controller = context.read<DeviceController>();
     final preview = controller.preview;
+    final previewOn = context.select<DeviceController, bool>((c) => c.previewOn);
 
     return Container(
       decoration: BoxDecoration(
@@ -29,7 +33,7 @@ class PreviewView extends StatelessWidget {
         initialData: preview.state,
         builder: (context, snapshot) {
           final state = snapshot.data ?? PreviewState.idle;
-          if (controller.previewOn) {
+          if (previewOn) {
             return _LiveView(
               preview: preview,
               onHide: () => controller.setPreview(false),
@@ -39,6 +43,7 @@ class PreviewView extends StatelessWidget {
             state: state,
             error: preview.lastError,
             onShow: () => controller.setPreview(true),
+            onRetry: controller.connect,
           );
         },
       ),
@@ -95,11 +100,13 @@ class _PaneBody extends StatelessWidget {
   const _PaneBody({
     required this.state,
     required this.onShow,
+    required this.onRetry,
     this.error,
   });
 
   final PreviewState state;
   final VoidCallback onShow;
+  final VoidCallback onRetry;
   final String? error;
 
   @override
@@ -131,6 +138,8 @@ class _PaneBody extends StatelessWidget {
     };
 
     final canShow = state == PreviewState.streaming;
+    final canRetry =
+        state == PreviewState.noDevice || state == PreviewState.error;
 
     return Center(
       child: Padding(
@@ -164,6 +173,14 @@ class _PaneBody extends StatelessWidget {
                 onPressed: onShow,
                 icon: const Icon(Icons.play_circle_outline),
                 label: const Text('Show preview'),
+              ),
+            ],
+            if (canRetry) ...[
+              const SizedBox(height: 18),
+              FilledButton.tonalIcon(
+                onPressed: onRetry,
+                icon: const Icon(Icons.refresh),
+                label: const Text('Retry'),
               ),
             ],
           ],

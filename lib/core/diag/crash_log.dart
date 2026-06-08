@@ -11,13 +11,27 @@ class CrashLog {
   static IOSink? _sink;
   static bool _init = false;
 
-  /// Log file path — runtime dir if available (tmpfs, per-user), else temp.
+  static String? _cachedPath;
+
+  /// Log file path (resolved once). Prefer `$XDG_RUNTIME_DIR` (per-user 0700
+  /// tmpfs). On the world-writable temp fallback, use a freshly `createTempSync`
+  /// dir (0700, unpredictable name) so another local user can't pre-create or
+  /// symlink a fixed name we'd then truncate.
   static String get path {
+    final cached = _cachedPath;
+    if (cached != null) return cached;
     final runtime = Platform.environment['XDG_RUNTIME_DIR'];
-    final dir = (runtime != null && runtime.isNotEmpty)
-        ? runtime
-        : Directory.systemTemp.path;
-    return '$dir/pixyctl.log';
+    String resolved;
+    if (runtime != null && runtime.isNotEmpty) {
+      resolved = '$runtime/pixyctl.log';
+    } else {
+      try {
+        resolved = '${Directory.systemTemp.createTempSync('pixyctl-').path}/pixyctl.log';
+      } catch (_) {
+        resolved = '${Directory.systemTemp.path}/pixyctl.log';
+      }
+    }
+    return _cachedPath = resolved;
   }
 
   /// Open the log (truncates a prior run's file). Safe to call once at startup.

@@ -46,11 +46,32 @@ class AiPanel extends StatelessWidget {
           title: 'Gesture control',
           subtitle: 'Enables the gesture flag on the camera. The PIXY only '
               'detects gestures while it is actively framing — turn Tracking on.',
-          child: SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            title: const Text('Gesture control'),
-            value: s.gesture,
-            onChanged: enabled ? c.setGesture : null,
+          child: Column(
+            children: [
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Gesture control'),
+                value: s.gesture,
+                onChanged: enabled ? c.setGesture : null,
+              ),
+              if (s.gesture && s.mode != CameraMode.tracking)
+                Row(
+                  children: [
+                    Icon(Icons.info_outline,
+                        size: 16,
+                        color: Theme.of(context).colorScheme.tertiary),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Gestures are only detected in Tracking mode — '
+                        'Tracking is currently off.',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.tertiary),
+                      ),
+                    ),
+                  ],
+                ),
+            ],
           ),
         ),
         PanelCard(

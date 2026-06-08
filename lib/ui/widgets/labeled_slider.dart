@@ -103,7 +103,7 @@ class _LabeledSliderState extends State<LabeledSlider> {
               padding: const EdgeInsets.only(left: 4, bottom: 6),
               child: Text(widget.disabledHint!,
                   style: theme.textTheme.bodySmall
-                      ?.copyWith(color: theme.colorScheme.outline)),
+                      ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
             ),
         ],
       ),

@@ -89,7 +89,7 @@ class _ControlPanelState extends State<ControlPanel> {
               enabled: enabled && gated,
               disabledHint: gated
                   ? null
-                  : 'Zoom needs 2K/1080p/720p @30fps preview (§4.6).',
+                  : 'Zoom works at 2K/1080p/720p — set it in Image → Picture quality.',
               onChanged: (v) =>
                   controller.setImageControl('zoomAbsolute', v.round()),
             );
@@ -112,28 +112,29 @@ class _ArrowsAndReadout extends StatelessWidget {
     final step = settings.stepDeg;
     final s = controller.state;
 
-    Widget arrow(IconData icon, MotorAxis axis, double sign) =>
+    Widget arrow(IconData icon, MotorAxis axis, double sign, String label) =>
         IconButton.filledTonal(
+          tooltip: label, // also the screen-reader label for these icon buttons
           onPressed: enabled ? () => controller.step(axis, sign * step) : null,
           icon: Icon(icon),
         );
 
     return Column(
       children: [
-        arrow(Icons.keyboard_arrow_up, MotorAxis.tilt, 1),
+        arrow(Icons.keyboard_arrow_up, MotorAxis.tilt, 1, 'Tilt up'),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            arrow(Icons.keyboard_arrow_left, MotorAxis.pan, -1),
+            arrow(Icons.keyboard_arrow_left, MotorAxis.pan, -1, 'Pan left'),
             IconButton.filledTonal(
               tooltip: 'Recenter',
               onPressed: enabled ? controller.recenter : null,
               icon: const Icon(Icons.center_focus_strong),
             ),
-            arrow(Icons.keyboard_arrow_right, MotorAxis.pan, 1),
+            arrow(Icons.keyboard_arrow_right, MotorAxis.pan, 1, 'Pan right'),
           ],
         ),
-        arrow(Icons.keyboard_arrow_down, MotorAxis.tilt, -1),
+        arrow(Icons.keyboard_arrow_down, MotorAxis.tilt, -1, 'Tilt down'),
         const SizedBox(height: 12),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,

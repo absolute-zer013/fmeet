@@ -82,7 +82,7 @@ class PanelCard extends StatelessWidget {
               const SizedBox(height: 2),
               Text(subtitle!,
                   style: theme.textTheme.bodySmall
-                      ?.copyWith(color: theme.colorScheme.outline)),
+                      ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
             ],
             const SizedBox(height: 12),
             child,

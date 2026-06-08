@@ -15,8 +15,11 @@ class ConnectionBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = context.watch<DeviceController>();
-    final spec = _describe(context, controller.connection);
+    // Select only `connection` so motor/preview/image notifications don't rebuild
+    // the badge.
+    final connection = context
+        .select<DeviceController, PixyConnectionState>((c) => c.connection);
+    final spec = _describe(context, connection);
     final actionable = onTap != null && spec.actionHint != null;
 
     final pill = Container(
@@ -56,7 +59,7 @@ class ConnectionBadge extends StatelessWidget {
       child: actionable
           ? InkWell(
               borderRadius: BorderRadius.circular(20),
-              onTap: () => onTap!(controller.connection),
+              onTap: () => onTap!(connection),
               child: pill,
             )
           : pill,

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -23,6 +25,7 @@ class HomeShell extends StatefulWidget {
 
 class _HomeShellState extends State<HomeShell> {
   int _index = 0;
+  Timer? _rescan;
 
   static const _destinations = [
     (Icons.gamepad, 'Control'),
@@ -40,6 +43,25 @@ class _HomeShellState extends State<HomeShell> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<DeviceController>().connect();
     });
+    // Hotplug: while not connected, periodically rescan so plugging the camera
+    // in AFTER launch connects without a manual tap. connect() no-ops while
+    // already connecting, and we never call it while connected (connect() would
+    // tear down a live session first).
+    _rescan = Timer.periodic(const Duration(seconds: 3), (_) {
+      if (!mounted) return;
+      final c = context.read<DeviceController>();
+      final s = c.connection;
+      if (s == PixyConnectionState.notFound ||
+          s == PixyConnectionState.disconnected) {
+        c.connect();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _rescan?.cancel();
+    super.dispose();
   }
 
   Widget _panelFor(int i) => switch (i) {

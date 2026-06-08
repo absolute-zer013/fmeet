@@ -137,15 +137,19 @@ class PixyFrame {
     );
   }
 
-  /// Decode an LE f32 from the payload at [offset].
-  double f32At(int offset) =>
-      ByteData.sublistView(payload).getFloat32(offset, Endian.little);
+  /// Decode an LE f32 from the payload at [offset]. Returns 0 if out of range
+  /// (callers guard length, but this keeps a malformed frame from throwing).
+  double f32At(int offset) => offset < 0 || offset + 4 > payload.length
+      ? 0.0
+      : ByteData.sublistView(payload).getFloat32(offset, Endian.little);
 
-  /// Decode an LE u32 from the payload at [offset].
-  int u32At(int offset) =>
-      ByteData.sublistView(payload).getUint32(offset, Endian.little);
+  /// Decode an LE u32 from the payload at [offset]. Returns 0 if out of range.
+  int u32At(int offset) => offset < 0 || offset + 4 > payload.length
+      ? 0
+      : ByteData.sublistView(payload).getUint32(offset, Endian.little);
 
-  int u8At(int offset) => payload[offset];
+  int u8At(int offset) =>
+      offset < 0 || offset >= payload.length ? 0 : payload[offset];
 
   @override
   String toString() {
