@@ -6,6 +6,10 @@ with Flutter (Linux desktop) and drives the camera through its reverse-engineere
 HID protocol alongside the standard V4L2/UVC controls, with the **live preview
 rendered right inside the app**.
 
+Status: complete and working against real hardware. PTZ, presets, modes,
+tracking, gesture control, image/exposure/focus/zoom, audio modes, picture
+quality, and the in-app preview all run on Linux.
+
 > The protocol groundwork comes from **PixyBar** (RoseWaveStudio, MIT) at
 > <https://github.com/RoseWaveStudio/PixyBar>, extended and verified here on Linux.
 > If you want the full story (how the protocol was captured, every issue and fix,

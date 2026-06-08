@@ -4,6 +4,15 @@ A single reference for why this project exists, how the EMEET PIXY protocol was
 captured and decoded, every problem hit along the way and how it was solved, and
 the trade-offs behind each decision.
 
+**Status: complete and working.** PTZ, presets, camera modes, subject tracking,
+gesture control, the full image/exposure/focus/zoom set, audio modes, the privacy
+timer, picture-quality selection, and the in-app live preview all run on Linux
+against real hardware. The startup crash, the gesture-reflect latency, the
+software-GL flicker, and the accessibility console noise are all resolved, and the
+app installs into the desktop menu. Remaining gaps are the deliberately
+out-of-scope features listed in section 3 (whiteboard/desktop/capture/record,
+firmware update) and the untested microphone capture path.
+
 ---
 
 ## 1. Why this project exists
@@ -159,12 +168,32 @@ which means another roll of the dice on the broken driver path. It's the same
 GL-texture fragility that sank `media_kit` earlier, so it was the hardware driver
 all along rather than a software fallback.
 
-The fix is to force the llvmpipe software rasterizer. The runner
-(`linux/runner/main.cc`) calls `setenv("LIBGL_ALWAYS_SOFTWARE","1")` before any
-GL init, so even the bare binary is safe, and `PIXY_GPU=1` opts back into hardware
-GL on a stable GPU/driver. It's proven on this box: `glxinfo` flips from radeonsi
-to llvmpipe under the flag, and the app then runs the preview without crashing.
-The UI is light, so CPU raster keeps up.
+The first fix was to force the llvmpipe software rasterizer. The runner
+(`linux/runner/main.cc`) can call `setenv("LIBGL_ALWAYS_SOFTWARE","1")` before any
+GL init, so even the bare binary is safe. It's proven on this box: `glxinfo` flips
+from radeonsi to llvmpipe under the flag, and the app then runs the preview
+without crashing.
+
+That introduced a second problem, though: llvmpipe under native Wayland flickers,
+because partial-damage repaints redraw stale buffer content on mouse-move and even
+at idle. The same software GL presents cleanly through XWayland, so software mode
+also defaulted to `GDK_BACKEND=x11`.
+
+In the end the owner's machine ran hardware GL on native Wayland with no flicker
+at all, so that became the shipping default and the software path became an opt-in
+fallback. The runner now ships hardware GL plus native Wayland by default, and
+`PIXY_SOFTWARE=1` (or `tool/run-release.sh software`) switches to the crash-safe
+llvmpipe plus XWayland combination for any radeonsi stack where the preview
+crashes. The trade-off is explicit: hardware GL is smoother but carries the
+preview-crash risk on some drivers, while the software fallback trades a little
+sharpness and CPU for guaranteed stability.
+
+One cosmetic loose end: the runner also clears `NO_AT_BRIDGE` and sets
+`GTK_A11Y=none`, because setting `NO_AT_BRIDGE=1` actually triggers the harmless
+`atk_socket_embed: assertion 'plug_id != NULL'` console line (GTK asks the absent
+AT-SPI bridge for a plug id and gets NULL). A separate `Gdk-Message: Unable to
+load  from the cursor theme` line is a harmless Flutter/GDK-on-Wayland
+empty-cursor-name quirk that prints once at startup and isn't worth chasing.
 
 A few things were hardened along the way as well. These were good hygiene rather
 than the segv cause: every UI panel used to `context.watch<DeviceController>()`,
@@ -206,6 +235,10 @@ isolate error handlers name the failing operation if anything else ever crashes.
 - The in-app live preview (covered above).
 - Live mode/tracking reflection via the mode poll.
 - Removed the redundant "Go to position" section.
+- A per-user app-menu shortcut installer (`packaging/install-desktop.sh`) so the
+  app launches from the desktop menu instead of a terminal. It points at the
+  release bundle by absolute path, generates a branded icon, and refreshes the
+  desktop/icon caches.
 
 ### Not supported / not tested
 
@@ -236,10 +269,12 @@ These are documented here so the gap is explicit rather than assumed-working.
   dependency conflict. The cost is maintaining about ten function signatures by
   hand, but the surface is tiny and stable, so that's cheap.
 - **`ffmpeg` MJPEG pipe plus `Image.memory` vs `media_kit`.** The in-app preview
-  decodes JPEG on the CPU and paints with Flutter's normal image path. The win is
-  that it sidesteps the GTK GL-texture crash entirely and needs no native plugin.
-  The cost is more CPU than a hardware-GL video texture (light at 720p and 1080p,
-  heavier at 4K) and a dependency on the `ffmpeg` binary.
+  decodes JPEG on the CPU and paints with Flutter's normal image path, which needs
+  no native plugin and keeps the preview a plain widget. The cost is more CPU than
+  a hardware-GL video texture (light at 720p and 1080p, heavier at 4K) and a
+  dependency on the `ffmpeg` binary. It doesn't dodge the radeonsi GL-texture crash
+  on its own, since the painted frames still become GL textures under hardware GL;
+  that's what the software-GL fallback (`PIXY_SOFTWARE=1`) is for.
 - **Velocity-pulse arrows vs absolute.** Velocity is the only primitive that moves
   this gimbal, so the arrows use it. Being open-loop (there's no position
   feedback, since the read-back is frozen) means the step distance is approximate,
@@ -250,6 +285,13 @@ These are documented here so the gap is explicit rather than assumed-working.
   a small steady HID read; the benefit is that the UI reflects gesture-driven
   tracking in about 0.2 s. The gesture channel is deliberately left unpolled,
   because polling it breaks detection.
+- **Rendering backend: hardware GL vs the software fallback.** Hardware GL on
+  native Wayland is the default because it's smooth and flicker-free, but on the
+  radeonsi stack it can crash during the live preview's texture upload. The
+  software fallback (`PIXY_SOFTWARE=1`) is rock-solid but pairs llvmpipe with
+  XWayland to avoid the Wayland software-GL flicker, at some cost in CPU and
+  sharpness. Rather than pick one for everyone, the default is the smooth path and
+  the stable path is one environment variable away.
 - **Host-side custom gestures, considered and rejected.** We already have the
   video frames, so a host-side hand model (MediaPipe or ONNX) could add arbitrary
   gestures mapped to any command, with no firmware risk. The project owner
