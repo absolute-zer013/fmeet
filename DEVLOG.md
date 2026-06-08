@@ -26,8 +26,9 @@ subprocesses for the video stream.
 
 ### This project did NOT start from scratch
 
-The protocol work builds on **PixyBar** by **RoseWaveStudio** (MIT-licensed),
-which did the initial reverse-engineering of the PIXY HID command set. This
+The protocol work builds on **PixyBar** by **RoseWaveStudio** (MIT-licensed) —
+<https://github.com/RoseWaveStudio/PixyBar> — which did the initial
+reverse-engineering of the PIXY HID command set. This
 project took that as a starting point and **extended and verified it on Linux**:
 re-captured the traffic with a fresh labelled session (`assets/log`), confirmed
 and corrected framings against real hardware, decoded additional commands
@@ -198,6 +199,9 @@ Deliberately out of scope or unverified:
   are implemented and switch fine, but the **microphone capture path itself was
   not tested** (no recording/mixing validation). Audio-mixing in EMEET Studio
   also returned no response in the capture.
+- **Firmware update** — not supported. There is no firmware-update feature; this
+  app only controls the camera, it does not flash or update its firmware (see the
+  firmware trade-off below for why that's intentionally out of scope).
 
 These are documented here so the gap is explicit rather than assumed-working.
 
@@ -241,7 +245,8 @@ These are documented here so the gap is explicit rather than assumed-working.
 
 ## 5. Contributors & credits
 
-- **PixyBar** by **RoseWaveStudio** (MIT) — the original PIXY HID protocol
+- **PixyBar** by **RoseWaveStudio** (MIT) —
+  <https://github.com/RoseWaveStudio/PixyBar> — the original PIXY HID protocol
   reverse-engineering this project is built on. The base command set came from
   PixyBar; this project extended, corrected, and verified it on Linux.
 - **mfahmitj** (GitHub [@absolute-zer013](https://github.com/absolute-zer013)) —
