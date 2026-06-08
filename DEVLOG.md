@@ -24,6 +24,19 @@ so the PIXY is fully usable on Linux without a Windows VM.
 HID control channel, `v4l2-ctl` for UVC image controls, and `mpv`/`ffmpeg`
 subprocesses for the video stream.
 
+### This project did NOT start from scratch
+
+The protocol work builds on **PixyBar** by **RoseWaveStudio** (MIT-licensed),
+which did the initial reverse-engineering of the PIXY HID command set. This
+project took that as a starting point and **extended and verified it on Linux**:
+re-captured the traffic with a fresh labelled session (`assets/log`), confirmed
+and corrected framings against real hardware, decoded additional commands
+(resolution/fps, exposure menu values, the tracking-is-a-mode behaviour, gesture
+status/channel details), and built the full Flutter control application,
+in-app MJPEG preview, and FFI transport around it. `assets/PROTOCOL.md` carries
+the same attribution inline. Credit for the original protocol groundwork goes to
+PixyBar; the bugs, fixes, and the Linux app are this project's.
+
 ---
 
 ## 2. How the protocol was captured (step by step)
@@ -210,8 +223,11 @@ actually moved the gimbal.
 
 ---
 
-## 5. Contributors
+## 5. Contributors & credits
 
+- **PixyBar** by **RoseWaveStudio** (MIT) — the original PIXY HID protocol
+  reverse-engineering this project is built on. The base command set came from
+  PixyBar; this project extended, corrected, and verified it on Linux.
 - **mfahmitj** (GitHub [@absolute-zer013](https://github.com/absolute-zer013)) —
   project owner and direction; hardware (the EMEET PIXY, AMD/Wayland/Linux test
   rig); all USB packet captures against EMEET Studio; every round of on-device
