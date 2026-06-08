@@ -185,6 +185,22 @@ actually moved the gimbal.
 - **Live mode/tracking** reflection via the mode poll.
 - Removed the redundant "Go to position" section.
 
+### Not supported / not tested
+
+Deliberately out of scope or unverified:
+
+- **Whiteboard mode** — not supported.
+- **Desktop mode** — not supported.
+- **Screen capture** — not supported. In the capture, EMEET Studio's screen-
+  capture action produced **no protocol response**, so there is nothing to drive.
+- **Screen recording** — not supported (same: no response observed).
+- **Microphone** — the camera's audio *modes* (Live / Original / Noise-Cancel)
+  are implemented and switch fine, but the **microphone capture path itself was
+  not tested** (no recording/mixing validation). Audio-mixing in EMEET Studio
+  also returned no response in the capture.
+
+These are documented here so the gap is explicit rather than assumed-working.
+
 ---
 
 ## 4. Trade-offs
