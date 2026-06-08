@@ -16,9 +16,12 @@ int main(int argc, char** argv) {
     setenv("LIBGL_ALWAYS_SOFTWARE", "1", 1);
   }
   // Silence the harmless `atk_socket_embed: assertion 'plug_id != NULL'` AT-SPI
-  // bridge noise (no a11y consumer on the bus). Cosmetic only.
-  if (getenv("NO_AT_BRIDGE") == nullptr) {
-    setenv("NO_AT_BRIDGE", "1", 1);
+  // bridge noise. Counter-intuitively NO_AT_BRIDGE=1 *triggers* that assertion
+  // (GTK asks the absent bridge for a plug id and gets NULL), so clear it and
+  // disable GTK accessibility the modern way instead. Cosmetic only.
+  unsetenv("NO_AT_BRIDGE");
+  if (getenv("GTK_A11Y") == nullptr) {
+    setenv("GTK_A11Y", "none", 1);
   }
 
   g_autoptr(MyApplication) app = my_application_new();
