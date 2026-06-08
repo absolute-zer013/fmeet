@@ -3,13 +3,16 @@
 #
 # The field SIGSEGV was the radeonsi/Mesa GL driver crashing during Flutter's
 # cross-context texture upload (live MJPEG preview frames -> GL texture). The
-# runner now forces the llvmpipe software rasterizer by default, which avoids
-# the broken driver path. See linux/runner/main.cc.
+# runner forces the llvmpipe software rasterizer by default, which avoids the
+# broken driver path. Software GL flickers under native Wayland, so the runner
+# also defaults to the XWayland (x11) backend in software mode. See
+# linux/runner/main.cc.
 #
-#   tool/run-release.sh         # software GL (default, crash-safe)
-#   tool/run-release.sh gpu     # opt into hardware GL (PIXY_GPU=1) — may crash
-#                               # on radeonsi; fine on stable GPU/driver stacks
-#   tool/run-release.sh x11     # force GDK_BACKEND=x11 (XWayland)
+#   tool/run-release.sh         # software GL + XWayland (default: no crash, no flicker)
+#   tool/run-release.sh gpu     # hardware GL on native Wayland (PIXY_GPU=1) — may
+#                               # crash on radeonsi; fine on stable GPU/driver stacks
+#   tool/run-release.sh wayland # software GL but stay on native Wayland (PIXY_WAYLAND=1)
+#                               # — accepts the software-GL flicker
 #
 # Breadcrumbs are written to $XDG_RUNTIME_DIR/pixyctl.log — send the tail after
 # a crash. Confirm a new core with: coredumpctl list | grep release
@@ -25,12 +28,12 @@ fi
 
 case "${1:-}" in
   gpu)
-    echo "launching with hardware GL (PIXY_GPU=1)"
+    echo "launching with hardware GL on native Wayland (PIXY_GPU=1)"
     export PIXY_GPU=1
     ;;
-  x11)
-    echo "launching with GDK_BACKEND=x11 (XWayland)"
-    export GDK_BACKEND=x11
+  wayland)
+    echo "launching with software GL on native Wayland (PIXY_WAYLAND=1)"
+    export PIXY_WAYLAND=1
     ;;
 esac
 
