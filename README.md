@@ -50,10 +50,16 @@ fvm flutter build linux --release
 
 # run it
 ./build/linux/x64/release/bundle/fmeet
-# or the helper (adds an optional GDK_BACKEND=x11 fallback):
-tool/run-release.sh           # native Wayland
+# or the helper:
+tool/run-release.sh           # software GL (default, crash-safe)
+tool/run-release.sh gpu       # opt into hardware GL (PIXY_GPU=1)
 tool/run-release.sh x11       # force XWayland
 ```
+
+> The app forces the **llvmpipe software rasterizer** by default. Flutter's
+> hardware-GL texture upload SIGSEGVs inside the radeonsi/Mesa driver on some AMD
+> stacks (see DEVLOG). If your GPU/driver is stable, set `PIXY_GPU=1` (or
+> `tool/run-release.sh gpu`) for hardware GL.
 
 For development: `fvm flutter run -d linux`. Plain `flutter` works in place of
 `fvm flutter`.

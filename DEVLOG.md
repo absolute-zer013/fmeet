@@ -133,28 +133,42 @@ actually moved the gimbal.
 ### Live preview
 | Issue | Cause | Fix |
 |---|---|---|
-| App crashed (SIGSEGV) when loading the preview | `media_kit`'s in-Flutter video texture couldn't get a hardware GL context on this box (AMD radeonsi + Wayland) and fell back to **software (llvmpipe) GL**, which JIT-segfaults | Removed `media_kit`; held the stream with an `mpv --vo=null` keepalive and showed video in a separate **mpv window** |
+| App crashed (SIGSEGV) when loading the preview | `media_kit`'s in-Flutter video texture tripped the same radeonsi GL-texture-upload bug later confirmed by the core (see "The field crash") | Removed `media_kit`; held the stream with an `mpv --vo=null` keepalive and showed video in a separate **mpv window** (later replaced by the in-app MJPEG painter + software GL) |
 | (later) wanted preview **inside** the app | — | The PIXY streams **MJPG natively**, so `ffmpeg … -c:v copy -f mjpeg pipe:1` copies its JPEG frames out; Dart splits them on the JPEG `FFD8…FFD9` markers and paints each with `Image.memory` — pure Flutter, **no GL, no media_kit, no external window** |
 
-### The field crash (spontaneous + on arrow press)
-- **Symptom:** SIGSEGV a few seconds after launch with no interaction, and on
-  arrow press. Confirmed in **both** debug (JIT) and release (AOT) cores, on the
-  Dart UI isolate executing our own app code.
-- **Ruled out:** FFI buffer overflow (the report descriptor proves 32-byte
-  reports fit the buffers exactly); software-GL fallback (the GPU's hardware GL
-  libraries were loaded, not llvmpipe).
-- **Root cause:** every UI panel did `context.watch<DeviceController>()`, so
-  **any** `notifyListeners()` rebuilt the whole widget tree. The async-push
-  handler fired a notify on **every** camera push with no change-guard or
-  throttle → a rebuild storm that destabilised the GTK/GL engine.
-- **Fix:** `_notify()` now **coalesces to one rebuild per frame**; the push
-  handler **change-guards** (only notifies on a real change) and **debounces**
-  its follow-up reads; the HID read pump was slowed 8 ms → 25 ms.
-- **Diagnostics:** because it couldn't be reproduced in development, a breadcrumb
-  logger (`lib/core/diag/crash_log.dart`, writes `$XDG_RUNTIME_DIR/pixyctl.log`)
-  plus `FlutterError`/`PlatformDispatcher`/isolate error handlers were added so
-  the *next* crash's last line names the failing operation. `tool/run-release.sh`
-  also offers a `GDK_BACKEND=x11` toggle to test the XWayland path.
+### The field crash (SIGSEGV during preview)
+- **Symptom:** SIGSEGV a few seconds into a session, no interaction needed.
+  Intermittent — an idle launch could run fine; it fired once the live preview
+  started pushing frames.
+- **Diagnosis:** a saved core (`coredumpctl debug … -ex 'thread apply all bt'`)
+  put the crashing thread squarely in the GPU driver, **not** our Dart code:
+  ```
+  SkImages::CrossContextTextureFromPixmap   ← Flutter uploads a decoded image to a GL texture
+  GrGLGpu::uploadTexData → glTexSubImage
+  → libgallium-26.1.2 (radeonsi)            ← SIGSEGV
+  ```
+- **Root cause:** Flutter's Linux/GTK backend uploads decoded raster images to GL
+  textures on a cross-context IO thread. On this box's **radeonsi/Mesa 26.1**
+  stack (AMD RX 6700 XT, navi22) that upload path segfaults inside `libgallium`.
+  Every MJPEG preview frame is an `Image.memory` → a texture upload → a roll of
+  the dice on the broken driver path. (This is the *same* GL-texture fragility
+  that sank `media_kit` earlier — it was the hardware driver all along, not a
+  software fallback.)
+- **Fix:** force the **llvmpipe software rasterizer**. The runner
+  (`linux/runner/main.cc`) `setenv("LIBGL_ALWAYS_SOFTWARE","1")` before any GL
+  init, so even the bare binary is safe; `PIXY_GPU=1` opts back into hardware GL
+  on a stable GPU/driver. Proven: `glxinfo` flips `radeonsi → llvmpipe` under the
+  flag, and the app then runs the preview without crashing. The UI is light and
+  CPU raster keeps up.
+- **Also hardened along the way** (good hygiene, not the segv cause): every UI
+  panel used to `context.watch<DeviceController>()`, so any `notifyListeners()`
+  rebuilt the whole tree — `_notify()` now coalesces to one rebuild per frame, the
+  push handler change-guards and debounces, hot widgets use `context.select`, and
+  the HID pump was slowed 8 ms → 25 ms.
+- **Diagnostics:** a breadcrumb logger (`lib/core/diag/crash_log.dart`, writes
+  `$XDG_RUNTIME_DIR/pixyctl.log`) plus `FlutterError`/`PlatformDispatcher`/isolate
+  error handlers name the failing operation if anything else crashes.
+  `tool/run-release.sh` offers `gpu` (hardware GL) and `x11` (XWayland) toggles.
 
 ### Motor / PTZ
 | Issue | Finding | Resolution |
