@@ -53,17 +53,15 @@ fvm flutter build linux --release
 # run it
 ./build/linux/x64/release/bundle/fmeet
 # or the helper:
-tool/run-release.sh           # software GL + XWayland (default: no crash, no flicker)
-tool/run-release.sh gpu       # hardware GL on native Wayland (PIXY_GPU=1)
-tool/run-release.sh wayland   # software GL on native Wayland (PIXY_WAYLAND=1)
+tool/run-release.sh            # hardware GL, native Wayland (default)
+tool/run-release.sh software   # software GL + XWayland (PIXY_SOFTWARE=1), crash-safe
 ```
 
-> By default the app forces the **llvmpipe software rasterizer** and the
-> **XWayland** backend. Flutter's hardware-GL texture upload SIGSEGVs inside the
-> radeonsi/Mesa driver on some AMD stacks (the DEVLOG has the details), and
-> software GL flickers under native Wayland but presents cleanly through
-> XWayland. If your GPU and driver are stable, set `PIXY_GPU=1` (or run
-> `tool/run-release.sh gpu`) to use hardware GL on native Wayland.
+> The app runs on **hardware GL / native Wayland** by default (smooth, no
+> flicker). On some radeonsi/Mesa stacks Flutter's GL texture upload SIGSEGVs
+> during the live preview (the DEVLOG has the details). If that happens, set
+> `PIXY_SOFTWARE=1` (or run `tool/run-release.sh software`) to fall back to the
+> llvmpipe software rasterizer plus XWayland, which is crash-safe.
 
 For development, use `fvm flutter run -d linux`. Plain `flutter` works in place of
 `fvm flutter`.

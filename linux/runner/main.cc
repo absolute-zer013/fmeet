@@ -3,28 +3,23 @@
 #include "my_application.h"
 
 int main(int argc, char** argv) {
-  // Flutter's Linux GTK backend uploads decoded images to GL textures on a
-  // cross-context IO thread (SkImages::CrossContextTextureFromPixmap). On this
-  // box's radeonsi/Mesa stack (AMD RX 6700 XT, navi22) that path SIGSEGVs inside
-  // libgallium during the texture upload — reliably reproduced whenever the live
-  // MJPEG preview pushes frames. Forcing the llvmpipe software rasterizer avoids
-  // the broken driver path entirely; the UI is light and CPU raster keeps up.
+  // Default: hardware GL on native Wayland — smooth, no flicker.
   //
-  // Opt back into hardware GL on a stable GPU/driver with PIXY_GPU=1. Respect an
-  // existing LIBGL_ALWAYS_SOFTWARE if the user already set one.
-  const bool want_gpu = getenv("PIXY_GPU") != nullptr;
-  if (!want_gpu && getenv("LIBGL_ALWAYS_SOFTWARE") == nullptr) {
-    setenv("LIBGL_ALWAYS_SOFTWARE", "1", 1);
-  }
-  // The llvmpipe software rasterizer flickers under native Wayland (partial
-  // damage repaints show stale buffer content on mouse-move and even idle), but
-  // presents cleanly through XWayland. So in software mode default to the x11
-  // backend. Hardware GL (PIXY_GPU=1) keeps native Wayland. Either way, an
-  // explicit GDK_BACKEND wins. Set PIXY_WAYLAND=1 to stay on native Wayland in
-  // software mode (accepting the flicker).
-  if (!want_gpu && getenv("PIXY_WAYLAND") == nullptr &&
-      getenv("GDK_BACKEND") == nullptr) {
-    setenv("GDK_BACKEND", "x11", 1);
+  // Trade-off worth knowing: Flutter's Linux GTK backend uploads decoded images
+  // to GL textures on a cross-context IO thread (SkImages::CrossContextTextureFromPixmap),
+  // and on some radeonsi/Mesa stacks (AMD RX 6700 XT, navi22) that path SIGSEGVs
+  // inside libgallium when the live MJPEG preview pushes frames. If that bites,
+  // PIXY_SOFTWARE=1 forces the llvmpipe software rasterizer (crash-safe) plus the
+  // XWayland backend (software GL flickers under native Wayland but presents
+  // cleanly through XWayland). An explicit LIBGL_ALWAYS_SOFTWARE / GDK_BACKEND
+  // still wins.
+  if (getenv("PIXY_SOFTWARE") != nullptr) {
+    if (getenv("LIBGL_ALWAYS_SOFTWARE") == nullptr) {
+      setenv("LIBGL_ALWAYS_SOFTWARE", "1", 1);
+    }
+    if (getenv("GDK_BACKEND") == nullptr) {
+      setenv("GDK_BACKEND", "x11", 1);
+    }
   }
   // Silence the harmless `atk_socket_embed: assertion 'plug_id != NULL'` AT-SPI
   // bridge noise. Counter-intuitively NO_AT_BRIDGE=1 *triggers* that assertion
