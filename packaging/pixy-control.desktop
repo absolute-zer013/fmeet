@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=PixyControl
+GenericName=EMEET PIXY Camera Control
+Comment=Native Linux control for the EMEET PIXY AI PTZ webcam
+Exec=pixy-control
+Icon=pixy-control
+Terminal=false
+Categories=AudioVideo;Video;Utility;
+Keywords=webcam;camera;ptz;emeet;pixy;

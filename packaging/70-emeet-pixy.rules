@@ -1,0 +1,13 @@
+# EMEET PIXY (328f:00c0) — grant the logged-in user access to the hidraw
+# control node.
+#
+# The 70- prefix matters: uaccess is processed by 73-seat-late.rules, so this
+# file must sort BEFORE 73 for the TAG+="uaccess" ACL to be applied.
+#
+# Install:
+#   sudo cp 70-emeet-pixy.rules /etc/udev/rules.d/
+#   sudo udevadm control --reload-rules
+#   sudo udevadm trigger --subsystem-match=hidraw
+# Then unplug and replug the camera.
+
+KERNEL=="hidraw*", ATTRS{idVendor}=="328f", ATTRS{idProduct}=="00c0", MODE="0660", TAG+="uaccess"

@@ -1,0 +1,222 @@
+---- changing the camera resolution and fps
+ <- 09 01 01 01  [GET mode] len=1 payload=03
+  -> UVC SET_CUR selector=0x01 unit=0x00 data=01 00 01 01 15 16 05 00 00 00 00 00 00 00 00 00 00 00 00 a4 1f 00 00 00 00 00
+  -> UVC SET_CUR selector=0x01 unit=0x00 data=01 00 01 01 15 16 05 00 00 00 00 00 00 00 00 00 00 00 00 90 7e 00 00 00 00 00
+  -> UVC SET_CUR selector=0x01 unit=0x00 data=01 00 01 01 15 16 05 00 00 00 00 00 00 00 00 00 00 00 00 90 7e 00 00 00 00 00
+  -> UVC SET_CUR selector=0x02 unit=0x00 data=01 00 01 01 15 16 05 00 00 00 00 00 00 00 00 00 00 00 00 90 7e 00 00 0c 00 00
+  <- 09 01 01 01  [GET mode] len=1 payload=00
+  -> UVC SET_CUR selector=0x05 unit=0x03 data=01
+  <- 09 01 01 01  [GET mode] len=1 payload=03
+  -> UVC SET_CUR selector=0x01 unit=0x00 data=01 00 01 01 15 16 05 00 00 00 00 00 00 00 00 00 00 00 00 90 7e 00 00 00 00 00
+  -> UVC SET_CUR selector=0x01 unit=0x00 data=01 00 01 02 15 16 05 00 00 00 00 00 00 00 00 00 00 00 00 90 7e 00 00 00 00 00
+  -> UVC SET_CUR selector=0x01 unit=0x00 data=01 00 01 02 15 16 05 00 00 00 00 00 00 00 00 00 00 00 00 40 38 00 00 00 00 00
+  -> UVC SET_CUR selector=0x02 unit=0x00 data=01 00 01 02 15 16 05 00 00 00 00 00 00 00 00 00 00 00 00 40 38 00 00 0c 00 00
+  <- 09 01 01 01  [GET mode] len=1 payload=00
+  -> UVC SET_CUR selector=0x05 unit=0x03 data=01
+  <- 09 01 01 01  [GET mode] len=1 payload=03
+  -> UVC SET_CUR selector=0x01 unit=0x00 data=01 00 01 01 15 16 05 00 00 00 00 00 00 00 00 00 00 00 00 40 38 00 00 00 00 00
+  -> UVC SET_CUR selector=0x01 unit=0x00 data=01 00 01 03 0a 8b 02 00 00 00 00 00 00 00 00 00 00 00 00 90 7e 00 00 00 00 00
+  -> UVC SET_CUR selector=0x01 unit=0x00 data=01 00 01 03 0a 8b 02 00 00 00 00 00 00 00 00 00 00 00 00 a4 1f 00 00 00 00 00
+  -> UVC SET_CUR selector=0x02 unit=0x00 data=01 00 01 03 0a 8b 02 00 00 00 00 00 00 00 00 00 00 00 00 a4 1f 00 00 0c 00 00
+  <- 09 01 01 01  [GET mode] len=1 payload=00
+  -> UVC SET_CUR selector=0x05 unit=0x03 data=01
+  <- 09 01 01 01  [GET mode] len=1 payload=03
+  -> UVC SET_CUR selector=0x01 unit=0x00 data=01 00 01 01 15 16 05 00 00 00 00 00 00 00 00 00 00 00 00 a4 1f 00 00 00 00 00
+  -> UVC SET_CUR selector=0x01 unit=0x00 data=01 00 01 03 15 16 05 00 00 00 00 00 00 00 00 00 00 00 00 90 7e 00 00 00 00 00
+  -> UVC SET_CUR selector=0x01 unit=0x00 data=01 00 01 03 15 16 05 00 00 00 00 00 00 00 00 00 00 00 00 a4 1f 00 00 00 00 00
+  -> UVC SET_CUR selector=0x02 unit=0x00 data=01 00 01 03 15 16 05 00 00 00 00 00 00 00 00 00 00 00 00 a4 1f 00 00 0c 00 00
+  <- 09 01 01 01  [GET mode] len=1 payload=00
+  -> UVC SET_CUR selector=0x05 unit=0x03 data=01
+  <- 09 01 01 01  [GET mode] len=1 payload=03
+  -> UVC SET_CUR selector=0x01 unit=0x00 data=01 00 01 01 15 16 05 00 00 00 00 00 00 00 00 00 00 00 00 a4 1f 00 00 00 00 00
+  -> UVC SET_CUR selector=0x01 unit=0x00 data=01 00 01 05 15 16 05 00 00 00 00 00 00 00 00 00 00 00 00 90 7e 00 00 00 00 00
+  -> UVC SET_CUR selector=0x01 unit=0x00 data=01 00 01 05 15 16 05 00 00 00 00 00 00 00 00 00 00 00 00 10 0e 00 00 00 00 00
+  -> UVC SET_CUR selector=0x02 unit=0x00 data=01 00 01 05 15 16 05 00 00 00 00 00 00 00 00 00 00 00 00 10 0e 00 00 0c 00 00
+  <- 09 01 01 01  [GET mode] len=1 payload=00
+  -> UVC SET_CUR selector=0x05 unit=0x03 data=01
+----
+Changing audio mode, nc mode, live, original
+  -> 09 05 00 03  [UNKNOWN] len=1 payload=01
+  <- 09 05 00 03  [UNKNOWN] len=1 payload=20
+  -> 09 05 00 04  [UNKNOWN] len=0 payload=-
+  <- 09 05 00 04  [UNKNOWN] len=1 payload=01
+  -> 09 05 00 03  [UNKNOWN] len=1 payload=02
+  <- 09 05 00 03  [UNKNOWN] len=1 payload=20
+  -> 09 05 00 04  [UNKNOWN] len=0 payload=-
+  <- 09 05 00 04  [UNKNOWN] len=1 payload=02
+  -> 09 05 00 03  [UNKNOWN] len=1 payload=03
+  <- 09 05 00 03  [UNKNOWN] len=1 payload=20
+  -> 09 05 00 04  [UNKNOWN] len=0 payload=-
+  <- 09 05 00 04  [UNKNOWN] len=1 payload=03
+----
+Changing camera mode, tracking, privacy, standard
+  -> 09 01 01 00  [SET mode] len=1 payload=01
+  <- 09 01 01 01  [GET mode] len=1 payload=01
+  <- 09 01 01 00  [SET mode] len=1 payload=20
+  -> 09 04 00 01  [GET tracking] len=5 payload=01 00 00 00 00 [f32@1=0.000]
+  <- 09 04 00 01  [GET tracking] len=1 payload=20
+  -> 09 04 00 03  [UNKNOWN] len=5 payload=01 00 00 00 00 [f32@1=0.000]
+  <- 09 04 00 03  [UNKNOWN] len=1 payload=20
+  -> 09 01 01 01  [GET mode] len=0 payload=-
+  -> 09 04 00 02  [UNKNOWN] len=0 payload=-
+  <- 09 04 00 02  [UNKNOWN] len=5 payload=01 00 00 00 00 [f32@1=0.000]
+  <- 09 01 01 01  [GET mode] len=1 payload=01
+  -> 09 04 00 01  [GET tracking] len=5 payload=01 00 00 00 00 [f32@1=0.000]
+  <- 09 04 00 01  [GET tracking] len=1 payload=20
+  -> 09 04 00 03  [UNKNOWN] len=5 payload=01 00 00 00 00 [f32@1=0.000]
+  <- 09 04 00 03  [UNKNOWN] len=1 payload=20
+  -> 09 04 00 02  [UNKNOWN] len=0 payload=-
+  <- 09 04 00 02  [UNKNOWN] len=5 payload=01 00 00 00 00 [f32@1=0.000]
+  -> 09 01 01 00  [SET mode] len=1 payload=02
+  <- 09 01 01 01  [GET mode] len=1 payload=02
+  <- 09 01 01 00  [SET mode] len=1 payload=20
+  -> 09 01 01 01  [GET mode] len=0 payload=-
+  <- 09 01 01 01  [GET mode] len=1 payload=02
+  <- 09 01 01 01  [GET mode] len=1 payload=02
+  <- 09 02 00 02  [UNKNOWN] len=1 payload=03
+  -> 09 01 01 00  [SET mode] len=1 payload=00
+  <- 09 01 01 01  [GET mode] len=1 payload=00
+  <- 09 01 01 00  [SET mode] len=1 payload=20
+  -> 09 01 01 01  [GET mode] len=0 payload=-
+  <- 09 01 01 01  [GET mode] len=1 payload=00
+  <- 09 01 01 01  [GET mode] len=1 payload=00
+  <- 09 02 00 02  [UNKNOWN] len=1 payload=00
+----
+Changing zoom lvl, can only work on 2k30fps, 1080p30fps, 720p30fps
+  -> UVC SET_CUR selector=0x0b unit=0x01 data=64 00
+  -> UVC SET_CUR selector=0x0b unit=0x01 data=96 00
+---
+flip image, vertically and horizontally
+  -> 09 04 00 08  [UNKNOWN] len=2 payload=02 01
+  <- 09 04 00 08  [UNKNOWN] len=2 payload=02 20
+  -> 09 04 00 07  [UNKNOWN] len=1 payload=02
+  <- 09 04 00 07  [UNKNOWN] len=2 payload=02 01
+  -> 09 04 00 08  [UNKNOWN] len=2 payload=01 01
+  <- 09 04 00 08  [UNKNOWN] len=2 payload=01 20
+  -> 09 04 00 07  [UNKNOWN] len=1 payload=01
+  <- 09 04 00 07  [UNKNOWN] len=2 payload=01 01
+  -> 09 04 00 08  [UNKNOWN] len=2 payload=01 00
+  <- 09 04 00 08  [UNKNOWN] len=2 payload=01 20
+  -> 09 04 00 07  [UNKNOWN] len=1 payload=01
+  <- 09 04 00 07  [UNKNOWN] len=2 payload=01 00
+  -> 09 04 00 08  [UNKNOWN] len=2 payload=02 00
+  <- 09 04 00 08  [UNKNOWN] len=2 payload=02 20
+  -> 09 04 00 07  [UNKNOWN] len=1 payload=02
+  <- 09 04 00 07  [UNKNOWN] len=2 payload=02 00
+---
+anti-flicker, 50hz & 60
+  -> UVC SET_CUR selector=0x05 unit=0x03 data=01
+  -> UVC SET_CUR selector=0x05 unit=0x03 data=02
+---
+Brightness slider, min & max
+  -> UVC SET_CUR selector=0x02 unit=0x03 data=00 00
+  -> UVC SET_CUR selector=0x02 unit=0x03 data=ff 00
+Contrast slider, min & max
+  -> UVC SET_CUR selector=0x03 unit=0x03 data=00 00
+  -> UVC SET_CUR selector=0x03 unit=0x03 data=ff 00
+Auto Exposure, lock & unlock
+  -> UVC SET_CUR selector=0x04 unit=0x01 data=01 00 00 00
+  -> UVC SET_CUR selector=0x02 unit=0x01 data=08
+EV lvl
+  -> UVC SET_CUR selector=0x02 unit=0x01 data=01
+  -> UVC SET_CUR selector=0x04 unit=0x01 data=88 13 00 00
+  -> UVC SET_CUR selector=0x02 unit=0x01 data=01
+  -> UVC SET_CUR selector=0x04 unit=0x01 data=01 00 00 00
+ISO lvl
+  -> UVC SET_CUR selector=0x04 unit=0x03 data=64 00
+  -> UVC SET_CUR selector=0x04 unit=0x03 data=00 00
+Sharpness
+  -> UVC SET_CUR selector=0x08 unit=0x03 data=00 00
+  -> UVC SET_CUR selector=0x08 unit=0x03 data=ff 00
+Saturation
+  -> UVC SET_CUR selector=0x07 unit=0x03 data=00 00
+  -> UVC SET_CUR selector=0x07 unit=0x03 data=ff 00
+Tone
+  -> UVC SET_CUR selector=0x06 unit=0x03 data=00 00
+  -> UVC SET_CUR selector=0x06 unit=0x03 data=ff 00
+Awb lock & unlock
+  -> UVC SET_CUR selector=0x0b unit=0x03 data=00
+  -> UVC SET_CUR selector=0x0a unit=0x03 data=4c 1d
+  -> UVC SET_CUR selector=0x0b unit=0x03 data=01
+  -> UVC SET_CUR selector=0x0b unit=0x03 data=00
+  -> UVC SET_CUR selector=0x0a unit=0x03 data=4c 1d
+WB slider
+  -> UVC SET_CUR selector=0x0a unit=0x03 data=fc 08
+  -> UVC SET_CUR selector=0x0a unit=0x03 data=4c 1d
+----
+Focus Metering
+  -> 09 04 00 01  [GET tracking] len=5 payload=02 00 00 00 00 [f32@1=0.000]
+  <- 09 04 00 01  [GET tracking] len=1 payload=20
+  -> 09 04 00 03  [UNKNOWN] len=5 payload=02 00 00 00 00 [f32@1=0.000]
+  <- 09 04 00 03  [UNKNOWN] len=1 payload=20
+  -> 09 04 00 02  [UNKNOWN] len=0 payload=-
+  <- 09 04 00 02  [UNKNOWN] len=5 payload=02 00 00 00 00 [f32@1=0.000]
+  -> 09 04 00 01  [GET tracking] len=5 payload=00 00 00 00 00 [f32@1=0.000]
+  <- 09 04 00 01  [GET tracking] len=1 payload=20
+  -> 09 04 00 03  [UNKNOWN] len=5 payload=00 00 00 00 00 [f32@1=0.000]
+  <- 09 04 00 03  [UNKNOWN] len=1 payload=20
+  -> 09 04 00 02  [UNKNOWN] len=0 payload=-
+  <- 09 04 00 02  [UNKNOWN] len=5 payload=00 00 00 00 00 [f32@1=0.000]
+  -> 09 04 00 01  [GET tracking] len=5 payload=01 00 00 00 00 [f32@1=0.000]
+  <- 09 04 00 01  [GET tracking] len=1 payload=20
+  -> 09 04 00 03  [UNKNOWN] len=5 payload=01 00 00 00 00 [f32@1=0.000]
+  <- 09 04 00 03  [UNKNOWN] len=1 payload=20
+  -> 09 04 00 02  [UNKNOWN] len=0 payload=-
+  <- 09 04 00 02  [UNKNOWN] len=5 payload=01 00 00 00 00 [f32@1=0.000]
+----
+Focus Lock, focus metering is disable when focus lock set to unlock
+  -> UVC SET_CUR selector=0x08 unit=0x01 data=00
+  -> UVC SET_CUR selector=0x06 unit=0x01 data=ff 03
+  -> UVC SET_CUR selector=0x08 unit=0x01 data=01
+  -> UVC SET_CUR selector=0x08 unit=0x01 data=00
+  -> UVC SET_CUR selector=0x06 unit=0x01 data=ff 03
+----
+focus slider
+  -> UVC SET_CUR selector=0x06 unit=0x01 data=00 00
+  -> UVC SET_CUR selector=0x06 unit=0x01 data=00 00
+  -> UVC SET_CUR selector=0x06 unit=0x01 data=ff 03
+----
+Auto Enter Privacy mode, there also a button for enable and disable, i tried to click it but it didnt response any result
+  -> 09 02 01 00  [UNKNOWN] len=4 payload=0a 00 00 00
+  <- 09 02 01 00  [UNKNOWN] len=1 payload=20
+  -> 09 02 01 01  [UNKNOWN] len=0 payload=-
+  <- 09 02 01 01  [UNKNOWN] len=4 payload=0a 00 00 00
+  -> 09 02 01 00  [UNKNOWN] len=4 payload=3c 00 00 00
+  <- 09 02 01 00  [UNKNOWN] len=1 payload=20
+  -> 09 02 01 01  [UNKNOWN] len=0 payload=-
+  <- 09 02 01 01  [UNKNOWN] len=4 payload=3c 00 00 00
+  -> 09 02 01 00  [UNKNOWN] len=4 payload=84 03 00 00
+  <- 09 02 01 00  [UNKNOWN] len=1 payload=20
+  -> 09 02 01 01  [UNKNOWN] len=0 payload=-
+  <- 09 02 01 01  [UNKNOWN] len=4 payload=84 03 00 00
+  -> 09 02 01 00  [UNKNOWN] len=4 payload=00 00 00 00
+  <- 09 02 01 00  [UNKNOWN] len=1 payload=20
+  -> 09 02 01 01  [UNKNOWN] len=0 payload=-
+  <- 09 02 01 01  [UNKNOWN] len=4 payload=00 00 00 00
+----
+Gesture Control
+  -> 09 04 02 00  [SET tracking] len=2 payload=02 00
+  <- 09 04 02 00  [SET tracking] len=2 payload=02 20
+  -> 09 04 02 01  [GET tracking] len=1 payload=02
+  <- 09 04 02 01  [GET tracking] len=2 payload=02 00
+  -> 09 04 02 00  [SET tracking] len=2 payload=02 01
+  <- 09 04 02 00  [SET tracking] len=2 payload=02 20
+  -> 09 04 02 01  [GET tracking] len=1 payload=02
+  <- 09 04 02 01  [GET tracking] len=2 payload=02 01
+----
+Auto-Rotate when upside down
+  -> 09 04 00 08  [UNKNOWN] len=2 payload=04 01
+  <- 09 04 00 08  [UNKNOWN] len=2 payload=04 20
+  -> 09 04 00 07  [UNKNOWN] len=1 payload=04
+  <- 09 04 00 07  [UNKNOWN] len=2 payload=04 01
+  <- 09 63 02 01  [UNKNOWN] len=2 payload=01 20
+  -> 09 04 00 08  [UNKNOWN] len=2 payload=04 00
+  <- 09 04 00 08  [UNKNOWN] len=2 payload=04 20
+  -> 09 04 00 07  [UNKNOWN] len=1 payload=04
+  <- 09 04 00 07  [UNKNOWN] len=2 payload=04 00
+  <- 09 63 02 01  [UNKNOWN] len=2 payload=01 20
+----
+Start recording and Screen capture function didnt return any response
+we can ignore enter whiteboard and desktop mode,
+audio mixing didnt response any result when interact with.
+there also a filtes preset selector in the main page,
