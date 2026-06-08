@@ -303,13 +303,19 @@ class DeviceController extends ChangeNotifier {
   // readback. Only mode is polled: gesture is a flag the USER sets (it never
   // self-changes), and polling its channel (09 04 02 01) was disrupting the
   // camera's gesture DETECTION — so we never touch group 0x04 in the background.
+  //
+  // The camera emits NO async push for a mode change (the capture shows even
+  // EMEET Studio polls 09 01 01 01 continuously), so this poll is the ONLY way a
+  // gesture-driven tracking toggle reaches the UI. Cadence = how fast that toggle
+  // shows up: 400 ms gives ~0.2 s average reflect latency. group 0x01 is safe to
+  // poll at this rate (it's what the official app does); 0x04 is the one to avoid.
+  static const _statePollInterval = Duration(milliseconds: 400);
   Timer? _statePoll;
   bool _statePollBusy = false;
 
   void _startStatePoll() {
     _statePoll?.cancel();
-    _statePoll =
-        Timer.periodic(const Duration(milliseconds: 1500), (_) => _pollState());
+    _statePoll = Timer.periodic(_statePollInterval, (_) => _pollState());
   }
 
   Future<void> _pollState() async {
