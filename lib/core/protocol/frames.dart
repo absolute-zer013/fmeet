@@ -117,10 +117,6 @@ class PixyFrame {
   /// True if byte 1 had the 0x60 response bit set (solicited response or push).
   bool get isResponse => (raw.length > 1) && (raw[1] & kResponseGroupBit) != 0;
 
-  /// Status byte (first payload byte is not the status; status lives at byte 8
-  /// only for some commands). Many frames carry the value directly. Callers
-  /// that care about OK/reject inspect [payload] per the command contract.
-
   /// Parse a received report. Returns null if it is not a PIXY frame.
   static PixyFrame? parse(Uint8List raw) {
     if (raw.length < 8 || raw[0] != 0x09) return null;

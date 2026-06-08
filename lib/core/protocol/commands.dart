@@ -17,12 +17,6 @@ class Commands {
   // Motor / PTZ — group 0x03, channel 0x01
   // ---------------------------------------------------------------------------
 
-  /// `09 03 01 19` — relative motor step (arrow buttons). Payload `u8 axis + f32`.
-  static Uint8List motorRelative(MotorAxis axis, double deltaDeg) => buildFrame(
-        [0x09, 0x03, 0x01, 0x19],
-        payload: payloadOf([axis.wire, f32le(deltaDeg)]),
-      );
-
   /// `09 03 01 18` — absolute motor target. Payload `u8 axis + f32`.
   static Uint8List motorAbsolute(MotorAxis axis, double deg) => buildFrame(
         [0x09, 0x03, 0x01, 0x18],

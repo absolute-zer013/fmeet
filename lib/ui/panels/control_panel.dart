@@ -18,31 +18,6 @@ class ControlPanel extends StatefulWidget {
 }
 
 class _ControlPanelState extends State<ControlPanel> {
-  DeviceController? _controller;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Capture the controller reference so dispose() never touches a possibly
-    // defunct context.
-    _controller = context.read<DeviceController>();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    // Poll live position only while this panel is visible (§6).
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) context.read<DeviceController>().enablePositionPolling(true);
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller?.enablePositionPolling(false);
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<DeviceController>();

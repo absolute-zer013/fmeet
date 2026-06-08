@@ -118,9 +118,10 @@ sudo udevadm trigger --subsystem-match=hidraw
 ```bash
 packaging/build-appimage.sh
 ```
-Builds a release bundle, assembles an `AppDir` (bundling `libhidapi` + `libmpv`),
-and runs `appimagetool` if present. The udev rule still has to be installed once
-on the target machine.
+Builds a release bundle, assembles an `AppDir` (bundling `libhidapi` only), and
+runs `appimagetool` if present. `mpv`, `ffmpeg`, and `v4l2-ctl` are **runtime
+dependencies** (not bundled) and must be installed on the target. The udev rule
+also has to be installed once on the target machine.
 
 ## Architecture
 

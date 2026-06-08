@@ -57,7 +57,6 @@ class _SystemPanelState extends State<SystemPanel> {
             children: [
               _info('Model', 'EMEET PIXY (328f:00c0)'),
               _info('Serial', s.serial ?? '—'),
-              _info('Build', s.build ?? '—'),
               _info('Control node', s.hidrawPath ?? '—'),
               _info('Video node', s.videoNode ?? '—'),
             ],

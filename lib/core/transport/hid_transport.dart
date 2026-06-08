@@ -129,15 +129,35 @@ class HidTransport {
       buf[1 + i] = i < frame.length ? frame[i] : 0;
     }
     final n = _api.hidWrite(_handle, buf, kFrameLength + 1);
-    if (n < 0) {
-      throw HidTransportException('hid_write failed: ${_lastError()}');
+    // A short write (0 <= n < full report) silently corrupts the frame on the
+    // wire, so treat anything but the full 33-byte report as a failure.
+    if (n != kFrameLength + 1) {
+      throw HidTransportException('hid_write failed (wrote $n): ${_lastError()}');
     }
   }
 
+  // Serializes [request] calls. Responses are matched only by group/sub on a
+  // shared broadcast stream, so two concurrent requests with the same group/sub
+  // could complete each other's completer (wrong payload to wrong caller).
+  // Running requests one-at-a-time removes that race; writes stay cheap.
+  Future<void> _requestChain = Future<void>.value();
+
   /// Write [frame] and await the first response matching [matcher] (or, by
-  /// default, the same group+sub with the response bit set). Async pushes keep
-  /// flowing to [frames] regardless.
+  /// default, the same group+sub with the response bit set). Serialized against
+  /// other requests. Async pushes keep flowing to [frames] regardless.
   Future<PixyFrame?> request(
+    Uint8List frame, {
+    bool Function(PixyFrame)? matcher,
+    Duration timeout = const Duration(milliseconds: 400),
+  }) {
+    final result = _requestChain
+        .then((_) => _runRequest(frame, matcher: matcher, timeout: timeout));
+    // Keep the chain alive regardless of this request's success/failure.
+    _requestChain = result.then((_) {}, onError: (_) {});
+    return result;
+  }
+
+  Future<PixyFrame?> _runRequest(
     Uint8List frame, {
     bool Function(PixyFrame)? matcher,
     Duration timeout = const Duration(milliseconds: 400),

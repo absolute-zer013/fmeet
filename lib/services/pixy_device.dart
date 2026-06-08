@@ -70,16 +70,6 @@ class PixyDevice {
     return (result: result, target: target);
   }
 
-  /// Go-to a pan+tilt pair (clamped). Sends pan then tilt 20 ms apart.
-  Future<void> goTo(double pan, double tilt) async {
-    await moveAbsolute(MotorAxis.pan, pan);
-    await Future<void>.delayed(const Duration(milliseconds: 20));
-    await moveAbsolute(MotorAxis.tilt, tilt);
-  }
-
-  /// Recenter — absolute pan 0 then tilt 0, 20 ms apart (as pixyctl does).
-  Future<void> recenter() => goTo(0, 0);
-
   /// Continuous velocity from the joystick knob. Zero vector stops.
   void drive(double panVel, double tiltVel) {
     final p = _clamp(panVel, velocityCap);

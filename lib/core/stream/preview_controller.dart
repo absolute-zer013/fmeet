@@ -279,6 +279,7 @@ class PreviewController {
   Future<void> _killProc() async {
     await _stdoutSub?.cancel();
     _stdoutSub = null;
+    _acc.clear(); // drop any partial JPEG so it can't corrupt the next stream
     final p = _proc;
     _proc = null;
     if (p != null) {

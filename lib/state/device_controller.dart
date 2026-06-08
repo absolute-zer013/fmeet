@@ -29,7 +29,6 @@ class DeviceState {
   double pan = 0;
   double tilt = 0;
   String? serial;
-  String? build;
   String? hidrawPath;
   String? videoNode;
 
@@ -249,6 +248,14 @@ class DeviceController extends ChangeNotifier {
         _setConnection(PixyConnectionState.connected);
       }
     }
+    if (wasUngated && !state.controlUngated) {
+      // Control was lost (e.g. another app grabbed the single stream). Re-arm the
+      // one-shot initial read + stop the mode poll so they re-run on the next
+      // ungate against the real, possibly-changed device state.
+      _initialStateRead = false;
+      _statePoll?.cancel();
+      _statePoll = null;
+    }
     if (!wasUngated && state.controlUngated && isConnected) {
       // Control just became available — read the device's real state.
       _readInitialState();
@@ -383,25 +390,23 @@ class DeviceController extends ChangeNotifier {
   void step(MotorAxis axis, double delta) {
     final dev = _device;
     if (dev == null || delta == 0) return;
-    _pulseTimer?.cancel();
+    _pulseTimer?.cancel(); // supersede any in-flight pulse
     final speed = delta < 0 ? -_pulseSpeed : _pulseSpeed;
     final durMs = (delta.abs() / _pulseSpeed * 1000).round().clamp(80, 2500);
     if (axis == MotorAxis.pan) {
       dev.drive(speed, 0);
+      _cmdPan += delta;
+      state.pan = _cmdPan;
     } else {
       dev.drive(0, speed);
+      _cmdTilt += delta;
+      state.tilt = _cmdTilt;
     }
-    _pulseTimer = Timer(Duration(milliseconds: durMs), () {
-      dev.stopDrive();
-      if (axis == MotorAxis.pan) {
-        _cmdPan += delta;
-        state.pan = _cmdPan;
-      } else {
-        _cmdTilt += delta;
-        state.tilt = _cmdTilt;
-      }
-      _notify();
-    });
+    // Commit the commanded target at issue time (not in the timer): rapid
+    // presses each cancel the prior timer, so a deferred commit would be lost
+    // and the readout would drift. The timer only stops the motor.
+    _notify();
+    _pulseTimer = Timer(Duration(milliseconds: durMs), dev.stopDrive);
   }
 
   Future<void> moveAbsolute(MotorAxis axis, double deg) => _absolute(axis, deg);
@@ -511,18 +516,9 @@ class DeviceController extends ChangeNotifier {
     _notify();
   }
 
-  // ---- position readout ------------------------------------------------------
-  //
-  // The camera's live-position readback (09 03 01 14) returns a FROZEN/stale
-  // value, so polling it would clobber the readout with a wrong number. Instead
-  // the Pan/Tilt readout tracks the software-commanded target (_cmdPan/_cmdTilt,
-  // mirrored into state.pan/state.tilt by `_absolute`). The polling API is kept
-  // as an inert no-op so the Control panel's enable/disable calls still compile.
-
-  void enablePositionPolling(bool on) {
-    // Intentionally inert — live readback is unreliable; the readout tracks the
-    // commanded target instead. Kept so the Control panel's calls still compile.
-  }
+  // The Pan/Tilt readout tracks the software-commanded target (_cmdPan/_cmdTilt,
+  // mirrored into state.pan/state.tilt) — the camera's live-position readback
+  // (09 03 01 14) is frozen/stale, so it is never polled.
 
   // ---- raw send (debug panel) ------------------------------------------------
 

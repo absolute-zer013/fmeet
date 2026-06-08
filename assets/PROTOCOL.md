@@ -13,7 +13,7 @@ Built on PixyBar (RoseWaveStudio, MIT), extended and verified here.
 ## Frame format (HID)
 
 ```
-byte 0     0x09         constant
+byte 0     0x09         HID Report ID (from the report descriptor — not a magic constant)
 byte 1     group        response echoes group OR'd with 0x60
 byte 2     channel      0x00 system, 0x01 main/gimbal, 0x02 AI-cam/async
 byte 3     sub          sub-command
@@ -79,7 +79,7 @@ revisit only if a feature is still missing.)
 | Frame | Meaning | Payload |
 |---|---|---|
 | `09 03 01 18` | Motor ABSOLUTE | u8 axis (1 pan, 2 tilt) + f32 deg |
-| `09 03 01 19` | Motor RELATIVE (arrow step) | u8 axis + f32 delta deg |
+| `09 03 01 19` | Motor RELATIVE | u8 axis + f32 delta deg — **never moved the gimbal on hardware; abandoned** |
 | `09 63 01 20` | **velocity stream (knob/joystick)** | f32 pan_vel + f32 tilt_vel + 0x4 |
 | `09 03 01 14` | **GET live position** | u8 + f32 pan + f32 tilt |
 | `09 03 01 16` | preset slot read/write | u8 slot + f32 pan + f32 tilt |
@@ -87,7 +87,10 @@ revisit only if a feature is still missing.)
 | `09 03 01 00` | abs-axis variant | u8 axis + f32 (saw tilt -45) |
 
 `09 63 01 20` is specifically the **on-screen knob** (velocity vectors, ~+/-30
-deg/s, zero-vector to stop). Arrow buttons use `09 63 01 19` 1deg relative steps.
+deg/s, zero-vector to stop). It is the ONLY motion primitive that actually moves
+the gimbal on hardware, so **arrow buttons drive a timed velocity pulse on this
+channel** (drive at a fixed speed for `step° / speed` seconds, then stop) — the
+relative commands never moved it and absolute is unreliable for non-zero targets.
 Presets are the `No.1/No.2/No.3` slots via `09 03 01 16`.
 
 ## UVC controls (NOT HID — use v4l2 / UVCIOC_CTRL_QUERY)
@@ -106,7 +109,7 @@ UVC** — most reachable via `v4l2-ctl`.
 | 0x03 PU | 0x08 | Sharpness | 0-255 |
 | 0x03 PU | 0x0a | White-balance temp | `4c 1d`=7500, `fc 08`=2300 |
 | 0x03 PU | 0x0b | AWB auto lock | 0/1 |
-| 0x01 CT | 0x02 | Auto-exposure mode | 1 manual, 8 auto |
+| 0x01 CT | 0x02 | Auto-exposure mode | UVC `8`=auto / `1`=manual; via v4l2 `auto_exposure` it's a **menu 0–3: 1=manual, 3=aperture-priority(auto)** |
 | 0x01 CT | 0x04 | Exposure time (EV) | `01 00 00 00`...`88 13 00 00` (=5000) |
 | 0x01 CT | 0x06 | **Focus** (abs) | `00 00`-`ff 03` (0-1023); also focus-lock pair |
 | 0x01 CT | 0x08 | Focus auto (AF/lock) | 0 lock, 1 AF |
@@ -120,8 +123,10 @@ not the UVC flip control.
 ## Behavioral facts
 1. **Stream gating** — motor/mode ignored unless a V4L2 stream is open; mode
    reads `startup`(3) until then. A controller must hold the device open.
-2. **Three motion modes** — knob -> velocity (`09 63 01 20`); arrows -> relative
-   step (`09 63 01 19`); go-to -> absolute pan+tilt pair (`09 03 01 18`).
+2. **Motion** — only the velocity channel (`09 63 01 20`) moves the gimbal in
+   practice. Knob = continuous velocity; arrows = a timed velocity pulse on the
+   same channel; recenter = absolute pair (`09 03 01 18`). Relative (`09 63/03 01 19`)
+   never moved hardware.
 3. **Zoom only at 2K/1080p/720p @30** (digital crop needs the higher modes).
 4. **Out-of-range absolutes** return `0x40` and can wedge the controller until
    power-cycle — clamp; measure real limits with 1deg steps.

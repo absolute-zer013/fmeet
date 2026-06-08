@@ -66,11 +66,6 @@ void main() {
   });
 
   group('commands — exact wire bytes (PROTOCOL.md)', () {
-    test('motorRelative(pan, 10) == 09 03 01 19 00 05 00 05 01 00 00 20 41', () {
-      expect(Commands.motorRelative(MotorAxis.pan, 10.0),
-          hex('09 03 01 19 00 05 00 05 01 00 00 20 41'));
-    });
-
     test('motorAbsolute(tilt, -45)', () {
       // 09 03 01 18 | len5 | axis2 | f32(-45)=00 00 34 c2
       expect(Commands.motorAbsolute(MotorAxis.tilt, -45.0),
